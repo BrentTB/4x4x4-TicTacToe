@@ -31,17 +31,7 @@ void Game::gameLoop()
 
 bool Game::checkWin(const char piece)
 {
-    // TODO: change the winning 4 to a different char or something so the player can see the win
-    /*
-    ways to win:
-    4 in a row, column or board (equivalent to same column and board but different row)
-
-    diagonals going from different row, col and board
-    from same row but different col and board
-    */
-
     // stores the board, row and column of each possible winning scenario
-
     vector<tuple<int, int, int>> moves(4);
 
     // Completely diagonal (all 3 variables change)
@@ -90,6 +80,35 @@ bool Game::checkWin(const char piece)
     }
 
     // partially diagonal (2 variables change and one doesnt)
+    for (auto i = 0; i < 4; i++)
+    {
+        for (auto j = 0; j < 2; j++)
+        {
+            // column is constant
+            for (auto iter = 0; iter < 4; iter++)
+            {
+                moves[iter] = make_tuple(iter, abs(iter - 3 * j), i);
+            }
+            if (checkPiece(piece, moves))
+                return true;
+
+            // row is constant
+            for (auto iter = 0; iter < 4; iter++)
+            {
+                moves[iter] = make_tuple(iter, i, abs(iter - 3 * j));
+            }
+            if (checkPiece(piece, moves))
+                return true;
+
+            // board is constant
+            for (auto iter = 0; iter < 4; iter++)
+            {
+                moves[iter] = make_tuple(i, iter, abs(iter - 3 * j));
+            }
+            if (checkPiece(piece, moves))
+                return true;
+        }
+    }
 
     return false;
 }
