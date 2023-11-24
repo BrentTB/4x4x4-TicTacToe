@@ -23,7 +23,7 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-Board game;
-game.printBoard();
+    Board game;
+    game.printBoard();
 
 }

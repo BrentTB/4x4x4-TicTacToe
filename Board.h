@@ -3,6 +3,10 @@
 using namespace std;
 using GameBoard = vector<vector<vector<char>>>;
 #define endd cout << endl
+using defaultChar = ' ';
+
+// exception class for if a chosen spot already has a piece
+class UsedSpot{};
 
 class Board
 {
@@ -18,15 +22,15 @@ public:
                 gameBoard_[i][j].resize(4);
                 for (auto k = 0; k < 4; k++)
                 {
-                    gameBoard_[i][j][k] = i + '0';
+                    // gameBoard_[i][j][k] = i + '0';
+                    gameBoard_[i][j][k] = defaultChar;
                 }
             }
         }
     }
-
+    
     void printBoard()
     {
-
         for (auto j = 0; j < 4; j++)
         {
             for (auto i = 0; i < 4; i++)
@@ -57,6 +61,13 @@ public:
         }
         endd;
         endd;
+    }
+
+    void placePiece(char piece, int board, int row, int col)
+    {
+
+    if (gameBoard_[board][row][piece] != defaultChar)
+    throw UsedSpot();
     }
 
     void printBoardVertical()
