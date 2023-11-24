@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "Board.h"
+#include "Game.h"
 
 using namespace std;
 #define ll long long
@@ -23,7 +23,7 @@ int main()
     ios::sync_with_stdio(0);
     cin.tie(0);
 
-    Board game;
-    game.printBoard();
+    Game game;
+    game.startGame(true);
 
 }
