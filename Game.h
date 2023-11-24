@@ -2,7 +2,7 @@
 #define GAME
 
 #include <iostream>
-#include <stdlib.h>
+#include <tuple>
 #include "Board.h"
 #include "Bot.h"
 
@@ -24,9 +24,10 @@ public:
     /**
      * @brief Starts a game of 3d 4x4 tic tac toe, either with 2 players or a bot
      *
-     * @param twoPlayer false if the player is playing a bot
+     * @param twoPlayer false if the player is playing a bot. If playing with a bot, the player is always 'X'
+     * @param xFirst true if 'X' moves first
      */
-    void startGame(const bool twoPlayer);
+    void startGame(const bool twoPlayer, const bool xFirst=true);
 
     /**
      * @brief Destroy the Game object
@@ -54,6 +55,12 @@ private:
     void getInput();
 
     /**
+     * @brief when playing with a bot, gets the bots next move and plays it
+     * 
+     */
+    void botMove();
+
+    /**
      * @brief Find if the game has been won. If it has, the winning pieces are changed to another symbol
      *
      * @param piece the char representing one of the players/bot
@@ -61,6 +68,14 @@ private:
      * @return false otherwise
      */
     bool checkWin(const char piece);
+
+    /**
+     * @brief Checks if the game is drawn, as there are no default characters
+     * 
+     * @return true if all squares are fill
+     * @return false otherwise
+     */
+    bool checkDraw();
 
     /**
      * @brief Takes in four pieces and returns if all of them belong to the same side
@@ -78,8 +93,14 @@ private:
      */
     void displayWin();
 
+    /**
+     * @brief Displays the board and a drawing message at the end of the game
+     *
+     */
+    void displayDraw();
+
     Board gameBoard_;            // stores the moves that have been played
-    Bot opponent_;               // stores the bot to play against
+    Bot opponentAi_;               // stores the bot to play against
     bool xTurn_;                 // if it is X's turn or O's turn
     bool useBot_;                // if the opponent is a bot / player
     char win_;                   // stores which player/bot has one

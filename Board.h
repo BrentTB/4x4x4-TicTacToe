@@ -7,7 +7,7 @@
 using namespace std;
 using GameBoard = vector<vector<vector<char>>>;
 #define endd cout << endl
-#define spc "        "
+const string spc = "            ";
 const char defaultChar = ' ';
 const char winChar = 'W';
 

@@ -4,11 +4,12 @@ Game::Game() : gameBoard_{}
 {
 }
 
-void Game::startGame(const bool twoPlayer)
+void Game::startGame(const bool twoPlayer, const bool xFirst)
 {
     useBot_ = !twoPlayer;
-    xTurn_ = true;
+    xTurn_ = xFirst;
     win_ = defaultChar;
+    input_ = make_tuple(-1, -1, -1);
     gameLoop();
 }
 
@@ -23,10 +24,16 @@ void Game::gameLoop()
         if (checkWin(xTurn_ ? 'X' : 'O'))
         {
             win_ = xTurn_ ? 'X' : 'O';
+            displayWin();
+            break;
         }
         xTurn_ = !xTurn_;
+        if(checkDraw())
+        {
+            displayDraw();
+            break;
+        }
     }
-    displayWin();
 }
 
 bool Game::checkWin(const char piece)
@@ -113,6 +120,23 @@ bool Game::checkWin(const char piece)
     return false;
 }
 
+bool Game::checkDraw()
+{
+    for (auto i = 0; i < 4; i++)
+    {
+        for (auto j = 0; j < 4; j++)
+        {
+            // checking every column
+            for (auto k = 0; k < 4; k++)
+            {
+                if(gameBoard_.getPiece(i,j,k) == defaultChar)
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
 bool Game::checkPiece(const char piece, vector<tuple<int, int, int>> &moves)
 {
     for (auto move : moves)
@@ -136,8 +160,15 @@ void Game::displayWin()
     cout << "The winner is: " << win_ << endl;
 }
 
+void Game::displayDraw()
+{
+    showBoard();
+    cout << "GAME OVER" << endl;
+    cout << "The game is a draw as all squares have been used without either player winning"<<endl;
+}
+
 void Game::showBoard()
-{ 
+{
     cout << "\033[2J\033[H";
     cout.flush();
     cout << "-> " << (xTurn_ ? 'X' : 'O') << " to move\n"
@@ -147,8 +178,14 @@ void Game::showBoard()
 
 void Game::getInput()
 {
+    if (useBot_ && !xTurn_)
+    {
+        botMove();
+        return;
+    }
+
     cout << "-> Please enter your move in the following form: abc" << endl;
-    cout << "  - a, b and c represent a number from 1 to 4" << endl;
+    cout << "  - a, b and c each represent a number from 1 to 4 inclusive" << endl;
     cout << "  - The first digit is the board (left board = 1)" << endl;
     cout << "  - The second digit is the row (top row = 1)" << endl;
     cout << "  - The third digit is the column (left column = 1)" << endl
@@ -201,4 +238,15 @@ void Game::getInput()
              << ex.what() << endl;
         exit(1);
     }
+}
+
+void Game::botMove()
+{
+    // maybe add a small wait here with a message like 'thinking'
+    if (get<0>(input_) != -1)
+    {
+        opponentAi_.setBoardState(input_);
+    }
+    auto move = opponentAi_.getMove();
+    gameBoard_.placePiece('O', get<0>(move), get<1>(move), get<2>(move));
 }

@@ -1,21 +1,7 @@
 #include "Board.h"
 
-Board::Board()
+Board::Board() : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultChar)))
 {
-    gameBoard_.resize(4);
-    for (auto i = 0; i < 4; i++)
-    {
-        gameBoard_[i].resize(4);
-        for (auto j = 0; j < 4; j++)
-        {
-            gameBoard_[i][j].resize(4);
-            for (auto k = 0; k < 4; k++)
-            {
-                // gameBoard_[i][j][k] = i + '0';
-                gameBoard_[i][j][k] = defaultChar;
-            }
-        }
-    }
 }
 
 void Board::printBoard()
@@ -24,7 +10,7 @@ void Board::printBoard()
     cout << "      ";
     for (auto j = 1; j < 5; j++)
     {
-        cout << j * 100 << "   " << spc << " ";
+        cout << j * 100 << "  " << spc << "  ";
     }
     cout << endl
          << endl;
@@ -103,35 +89,6 @@ void Board::placePiece(char piece, int board, int row, int col)
 char Board::getPiece(int board, int row, int col)
 {
     return gameBoard_[board][row][col];
-}
-
-void Board::printBoardVertical()
-{
-    for (auto i = 0; i < 4; i++)
-    {
-        for (auto j = 0; j < 4; j++)
-        {
-            for (auto k = 0; k < 4; k++)
-            {
-                cout << gameBoard_[i][j][k];
-                if (k != 3)
-                {
-                    cout << "|";
-                }
-            }
-            endd;
-            if (j != 3)
-            {
-                for (auto k = 0; k < 7; k++)
-                {
-                    cout << "-";
-                }
-                endd;
-            }
-        }
-        endd;
-        endd;
-    }
 }
 
 Board::~Board(){};
