@@ -3,22 +3,11 @@
 
 // #include <bits/stdc++.h>
 #include <iostream>
+#include <stdlib.h>
 #include "Board.h"
 #include "Bot.h"
 
 using namespace std;
-
-// #define startLoop(a, b)                           \
-//     for (auto i = 0; i < a; i++)                  \
-//     {                                             \
-//         for (auto j = 0; j < b; j++)              \
-//         {                                         \
-//             for (auto iter = 0; iter < 4; iter++) \
-//             {
-// #define endLoop \
-//     }           \
-//     }           \
-    // }
 
 class Game
 {

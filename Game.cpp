@@ -137,8 +137,10 @@ void Game::displayWin()
 }
 
 void Game::showBoard()
-{
-    cout << "\n\n\n\n-> " << (xTurn_ ? 'X' : 'O') << " to move\n"
+{ 
+    cout << "\033[2J\033[H";
+    cout.flush();
+    cout << "-> " << (xTurn_ ? 'X' : 'O') << " to move\n"
          << endl;
     gameBoard_.printBoard();
 }
