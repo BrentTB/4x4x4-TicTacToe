@@ -20,8 +20,37 @@ Board::Board()
 
 void Board::printBoard()
 {
+    // print the board labels
+    cout << "      ";
+    for (auto j = 1; j < 5; j++)
+    {
+        cout <<j*100<<"   "<<spc<<" ";
+    }
+    cout << endl << endl;
+
+    //print the column labels
+    cout << "    ";
+    for (auto j = 1; j < 5; j++)
+    {
+        for (auto i = 1; i < 5; i++)
+        {
+
+            cout <<i;
+            if(i != 4)
+            cout << " ";
+        
+        }
+            cout << spc;
+    }
+    endd;
+
+    // print all the boards
     for (auto j = 0; j < 4; j++)
     {
+        // print the row labels
+        cout << (j+1)*10 << "  ";
+
+        // print one board
         for (auto i = 0; i < 4; i++)
         {
             for (auto k = 0; k < 4; k++)
@@ -32,9 +61,9 @@ void Board::printBoard()
                     cout << "|";
                 }
             }
-            cout << "\t\t";
+            cout << spc;
         }
-        endd;
+        cout << endl << "    ";
         for (auto i = 0; i < 4; i++)
         {
             if (j != 3)
@@ -43,7 +72,7 @@ void Board::printBoard()
                 {
                     cout << "-";
                 }
-                cout << "\t\t";
+                cout << spc;
             }
         }
         endd;
@@ -55,8 +84,14 @@ void Board::printBoard()
 void Board::placePiece(char piece, int board, int row, int col)
 {
 
-    if (gameBoard_[board][row][piece] != defaultChar)
+
+    if (board < 0 || board > 3 || row < 0 || row > 3 || col < 0 || col > 3 )
+    throw InvalidSpot();
+
+    if (gameBoard_[board][row][col] != defaultChar)
         throw UsedSpot();
+
+    gameBoard_[board][row][col] = piece;
 }
 
 void Board::printBoardVertical()

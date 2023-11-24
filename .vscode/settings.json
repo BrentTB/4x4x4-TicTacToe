@@ -49,6 +49,7 @@
         "fstream": "cpp",
         "bitset": "cpp",
         "chrono": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "exception": "cpp"
     }
 }

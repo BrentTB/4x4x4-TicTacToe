@@ -1,5 +1,5 @@
-#ifndef BOT.h
-#define BOT.h
+#ifndef BOT
+#define BOT
 
 #include <bits/stdc++.h>
 
