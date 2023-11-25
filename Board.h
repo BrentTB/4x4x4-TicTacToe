@@ -26,7 +26,7 @@ class InvalidSpot
 };
 
 /**
- * @brief Class that represents the board of a 3d 4x4 tic tac toe game
+ * @brief Class that represents the board of a 3d 4x4x4 tic tac toe game
  *
  */
 class Board

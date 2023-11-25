@@ -1,1 +1,1 @@
-a Game of 3 dimentional 4x4 Tic Tac Toe created using c++
+a Game of 3 dimentional 4x4x4 Tic Tac Toe created using c++

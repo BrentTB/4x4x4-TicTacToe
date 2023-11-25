@@ -12,8 +12,8 @@ void Board::printBoard() const
     {
         cout << j * 100 << "  " << spc << "  ";
     }
-    cout << endl
-         << endl;
+    endd;
+    endd;
 
     // print the column labels
     cout << "    ";
@@ -49,8 +49,8 @@ void Board::printBoard() const
             }
             cout << spc;
         }
-        cout << endl
-             << "    ";
+        endd;
+        cout << "    ";
         for (auto i = 0; i < 4; i++)
         {
             if (j != 3)

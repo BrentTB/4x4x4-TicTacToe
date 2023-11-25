@@ -2,6 +2,8 @@
 
 Game::Game() : gameBoard_(defaultChar, winChar), gameLogic_(pl1, pl2, defaultChar), opponentAi_(pl1, pl2, defaultChar)
 {
+    srand(0);
+    // srand(time(0));
 }
 
 void Game::startGame(const bool twoPlayer, const bool xFirst)
@@ -9,7 +11,6 @@ void Game::startGame(const bool twoPlayer, const bool xFirst)
     useBot_ = !twoPlayer;
     xTurn_ = xFirst;
     win_ = defaultChar;
-    input_ = make_tuple(-1, -1, -1);
     gameLoop();
 }
 
@@ -40,13 +41,10 @@ void Game::gameLoop()
 bool Game::checkWin(const char piece)
 {
     auto combinations = gameLogic_.fourInARow();
-    bool win;
 
-    for (auto itr = combinations->begin(); itr != combinations->end(); itr++)
+    for (auto moves : combinations)
     {
-        auto moves = *itr;
-        // for (auto moves : *combinations)
-        win = true;
+        bool win = true;
         for (auto move : moves)
         {
             if (gameBoard_.getPiece(get<0>(move), get<1>(move), get<2>(move)) != piece)
@@ -64,26 +62,16 @@ bool Game::checkWin(const char piece)
     return false;
 }
 
-// bool Game::checkPiece(const char piece, vector<tuple<int, int, int>> &moves)
-// {
-//     for (auto move : moves)
-//     {
-//         if (gameBoard_.getPiece(get<0>(move), get<1>(move), get<2>(move)) != piece)
-//             return false;
-//     }
-
-//     for (auto &move : moves)
-//     {
-//         gameBoard_.placeWinPiece(get<0>(move), get<1>(move), get<2>(move));
-//     }
-//     return true;
-// }
-
 void Game::displayWin()
 {
     showBoard();
     cout << "GAME OVER" << endl;
     cout << "The winner is: " << win_ << endl;
+
+    for (auto x : allInput_)
+    {
+        cout << (get<0>(x) + 1) << (get<1>(x) + 1) << (get<2>(x) + 1) << endl;
+    }
 }
 
 void Game::displayDraw()
@@ -95,8 +83,8 @@ void Game::displayDraw()
 
 void Game::showBoard()
 {
-    cout << "\033[2J\033[H";
-    cout.flush();
+    // cout << "\033[2J\033[H";
+    // cout.flush();
     cout << "-> " << (xTurn_ ? pl1 : pl2) << " to move\n"
          << endl;
     gameBoard_.printBoard();
@@ -136,6 +124,7 @@ void Game::getInput()
         col = val % 10 - 1;
 
         gameBoard_.placePiece((xTurn_ ? pl1 : pl2), board, row, col);
+        allInput_.push_back({board, row, col});
     }
     catch (invalid_argument &ex)
     {
@@ -169,9 +158,9 @@ void Game::getInput()
 void Game::botMove()
 {
     // maybe add a small wait here with a message like 'thinking'
-    if (get<0>(input_) != -1)
+    if (allInput_.size() != 0)
     {
-        opponentAi_.setBoardState(input_);
+        opponentAi_.setBoardState(allInput_.back());
     }
     auto move = opponentAi_.getMove();
     gameBoard_.placePiece('O', get<0>(move), get<1>(move), get<2>(move));

@@ -14,7 +14,7 @@ const char defaultChar = ' ';
 const char winChar = 'W';
 
 /**
- * @brief Class used to run a game of 3d 4x4 tic tac toe
+ * @brief Class used to run a game of 3d 4x4x4 tic tac toe
  *
  */
 class Game
@@ -27,7 +27,7 @@ public:
     Game();
 
     /**
-     * @brief Starts a game of 3d 4x4 tic tac toe, either with 2 players or a bot
+     * @brief Starts a game of 3d 4x4x4 tic tac toe, either with 2 players or a bot
      *
      * @param twoPlayer false if the player is playing a bot. If playing with a bot, the player is always 'X'
      * @param xFirst true if 'X' moves first (or the char of pl1)
@@ -86,13 +86,21 @@ private:
      */
     void displayDraw();
 
-    Board gameBoard_;            // stores the moves that have been played
-    Logic gameLogic_;             // used to find out if the game is over/won
-    Bot opponentAi_;             // stores the bot to play against
-    bool xTurn_;                 // if it is X's turn or O's turn
-    bool useBot_;                // if the opponent is a bot / player
-    char win_;                   // stores which player/bot has one
-    tuple<int, int, int> input_; // stores the user / bots input
+    Board gameBoard_;                       // stores the moves that have been played
+    Logic gameLogic_;                       // used to find out if the game is over/won
+    Bot opponentAi_;                        // stores the bot to play against
+    bool xTurn_;                            // if it is X's turn or O's turn
+    bool useBot_;                           // if the opponent is a bot / player
+    char win_;                              // stores which player/bot has one
+    vector<tuple<int, int, int>> allInput_; // stores all of the user's inputs
 };
 
 #endif
+
+/*
+TODO: make it easier to see what the opponent just moved, against the bot or a player
+maybe add the ability to undo a move?
+
+TODO: make it easier to restart a game without rerunning the code?
+
+*/

@@ -1,12 +1,13 @@
 #include "Bot.h"
 
-Bot::Bot(char pl1, char pl2, char defaultChar) : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultChar))),
-                                                 allMoves_(4, vector<vector<double>>(4, vector<double>(4, 0))),
-                                                 pl1_(pl1), pl2_(pl2), defaultChar_(defaultChar){};
+Bot::Bot(char playerChar, char botChar, char defaultChar) : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultChar))),
+                                                            allMoves_(4, vector<vector<double>>(4, vector<double>(4, 0))),
+                                                            gameLogic_(playerChar, botChar, defaultChar),
+                                                            playerChar_(playerChar), botChar_(botChar), defaultChar_(defaultChar){};
 
 void Bot::setBoardState(const tuple<int, int, int> &playerInput)
 {
-    gameBoard_[get<0>(playerInput)][get<1>(playerInput)][get<2>(playerInput)] = pl1_;
+    gameBoard_[get<0>(playerInput)][get<1>(playerInput)][get<2>(playerInput)] = playerChar_;
 }
 
 tuple<int, int, int> Bot::getMove()
@@ -17,88 +18,138 @@ tuple<int, int, int> Bot::getMove()
         {
             for (auto k = 0; k < 4; k++)
             {
+                /*
+                each position has a starting point value based on where it is
+
+                board 1 and 4:  corner > edges > middle
+                                  100     50       10
+                board 2 and 3:  middle > edges > corner
+                */
+                if ((j == 0 || j == 3) && (k == 0 || k == 3))
+                    allMoves_[i][j][k] = (i == 0 || i == 3) ? 100 : 10;
+                else if (j == 0 || j == 3 || k == 0 || k == 3)
+                    allMoves_[i][j][k] = 50;
+                else
+                    allMoves_[i][j][k] = (i == 0 || i == 3) ? 10 : 100;
+
                 // the bot can't move somewhere that has a piece
                 if (gameBoard_[i][j][k] != defaultChar_)
-                {
                     allMoves_[i][j][k] = INT32_MIN;
-                    break;
-                }
-                // simulate playing the move
-                gameBoard_[i][j][k] = pl2_;
-
-                // the default score is zero, which can be added to and subtracted from
-                allMoves_[i][j][k] = INT32_MIN;
-                allMoves_[i][j][k] += getScore();
-                allMoves_[i][j][k] -= enemyScore();
-
-                // undo the move
-                gameBoard_[i][j][k] = defaultChar_;
             }
         }
     }
+    botScore();
+    playerScore();
 
-    return findBestScore();
+    auto move = findBestScore();
+    gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] = botChar_;
+
+    return move;
 }
 
-double Bot::getScore()
+void Bot::botScore()
 {
-    double score = 0;
-    /* corners of board 1 and 4 are best, and the middle of board 2 and 3
-    the edges on board 1 and 4 and the edges of board 2 and 4 are then most valuable.
-    Then the middle of board 1 and 4 and the corners of board 2 and 3 are the least valuable
+    auto combinations = gameLogic_.fourInARow();
 
-    ie:
-    board 1 and 4:
-        corners > edges > middle
-        100         50      10
-
-    board 2 and 3:
-        middle > edges > corner
-    */
-
-    for (auto i = 0; i < 4; i++)
+    vector<vector<vector<bool>>> twoInARow(4, vector<vector<bool>>(4, vector<bool>(4, false)));
+    for (auto moves : combinations)
     {
-        for (auto j = 0; j < 4; j++)
+        int numInARow = 0;
+        vector<tuple<int, int, int>> empty;
+        for (auto move : moves)
         {
-            for (auto k = 0; k < 4; k++)
+            if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == botChar_)
+                numInARow++;
+            else if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == playerChar_)
+                numInARow = -10;
+            else
+                empty.push_back({get<0>(move), get<1>(move), get<2>(move)});
+        }
+        // if there is a winning move, nothing else matters, play that move
+        if (numInARow == 3)
+        {
+            for (auto pos : empty)
             {
-                if (gameBoard_[i][j][k] == 'O')
+                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += INT32_MAX;
+            }
+        }
+        else if (numInARow == 2)
+        {
+            for (auto pos : empty)
+            {
+                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += 50;
+                if (!twoInARow[get<0>(pos)][get<1>(pos)][get<2>(pos)])
                 {
-                    if (i == 0 || i == 3)
-                    {
-                        if ((j == 0 || j == 3) && (k == 0 || k == 3))
-                            score += 100;
-                        else if (j == 0 || j == 3 || k == 0 || k == 3)
-                            score += 50;
-                        else
-                            score += 10;
-                    }
-                    else
-                    {
-                        if ((j == 0 || j == 3) && (k == 0 || k == 3))
-                            score += 10;
-                        else if (j == 0 || j == 3 || k == 0 || k == 3)
-                            score += 50;
-                        else
-                            score += 100;
-                    }
+                    twoInARow[get<0>(pos)][get<1>(pos)][get<2>(pos)] = true;
+                }
+                else
+                {
+                    allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += INT16_MAX * 100;
+                }
+            }
+        }
+
+        else if (numInARow == 1)
+        {
+            for (auto pos : empty)
+            {
+                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += 10;
+            }
+        }
+    }
+}
+void Bot::playerScore()
+{
+    // TODO next is if one empty square is in line with 2 sets of 2, it must be blocked. if not, the bot can easily be beaten by a little more complex of a plot
+    auto combinations = gameLogic_.fourInARow();
+
+    vector<vector<vector<bool>>> twoInARow(4, vector<vector<bool>>(4, vector<bool>(4, false)));
+
+    for (auto moves : combinations)
+    {
+        int numInARow = 0;
+        vector<tuple<int, int, int>> empty;
+        for (auto move : moves)
+        {
+            if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == playerChar_)
+                numInARow++;
+            else if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == botChar_)
+                numInARow = -10;
+            else
+                empty.push_back({get<0>(move), get<1>(move), get<2>(move)});
+        }
+        // the enemy winning is bad, but if a certain move lets you win, then this does not matter. Thus this must be lower, but less than the score added for winning
+        if (numInARow == 3)
+        {
+            for (auto pos : empty)
+            {
+                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += INT16_MAX * 200;
+            }
+        }
+        else if (numInARow == 2)
+        {
+            for (auto pos : empty)
+            {
+                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += 40;
+                if (!twoInARow[get<0>(pos)][get<1>(pos)][get<2>(pos)])
+                {
+                    twoInARow[get<0>(pos)][get<1>(pos)][get<2>(pos)] = true;
+                }
+                else
+                {
+                    allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += INT16_MAX * 50;
                 }
             }
         }
     }
-    return score;
-}
-
-double Bot::enemyScore()
-{
-    // if the opponent can win, minus a lot -> if the opponent has 3 in a row that isnt blocked
-    return 0;
 }
 
 tuple<int, int, int> Bot::findBestScore()
 {
-    int board = 0, row = 0, col = 0;
+    // TODO; for multiple moves of the same score, choose a random one. This lets the game be more erratic, and doesnt make the bot predicatble
     double bestScore = INT32_MIN;
+
+    vector<tuple<int, int, int>> allBestMoves;
 
     for (auto i = 0; i < 4; i++)
     {
@@ -106,17 +157,22 @@ tuple<int, int, int> Bot::findBestScore()
         {
             for (auto k = 0; k < 4; k++)
             {
-                if (allMoves_[i][j][k] >= bestScore)
+                if (allMoves_[i][j][k] > bestScore)
                 {
                     bestScore = allMoves_[i][j][k];
-                    board = i;
-                    row = j;
-                    col = k;
+                    allBestMoves.clear();
+                    allBestMoves.push_back({i, j, k});
+                }
+                else if (allMoves_[i][j][k] == bestScore)
+                {
+                    allBestMoves.push_back({i, j, k});
                 }
             }
         }
     }
-    return {board, row, col};
+    cout << bestScore << endl;
+    int index = rand() % allBestMoves.size();
+    return allBestMoves[index];
 }
 
 Bot::~Bot(){};
