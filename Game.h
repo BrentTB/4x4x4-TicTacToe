@@ -5,12 +5,17 @@
 #include <tuple>
 #include "Board.h"
 #include "Bot.h"
+#include "Logic.h"
 
 using namespace std;
+const char pl1 = 'X'; // the piece of player one
+const char pl2 = 'O'; // the piece of player two
+const char defaultChar = ' ';
+const char winChar = 'W';
 
 /**
  * @brief Class used to run a game of 3d 4x4 tic tac toe
- * 
+ *
  */
 class Game
 {
@@ -25,9 +30,9 @@ public:
      * @brief Starts a game of 3d 4x4 tic tac toe, either with 2 players or a bot
      *
      * @param twoPlayer false if the player is playing a bot. If playing with a bot, the player is always 'X'
-     * @param xFirst true if 'X' moves first
+     * @param xFirst true if 'X' moves first (or the char of pl1)
      */
-    void startGame(const bool twoPlayer, const bool xFirst=true);
+    void startGame(const bool twoPlayer, const bool xFirst = true);
 
     /**
      * @brief Destroy the Game object
@@ -56,7 +61,7 @@ private:
 
     /**
      * @brief when playing with a bot, gets the bots next move and plays it
-     * 
+     *
      */
     void botMove();
 
@@ -68,24 +73,6 @@ private:
      * @return false otherwise
      */
     bool checkWin(const char piece);
-
-    /**
-     * @brief Checks if the game is drawn, as there are no default characters
-     * 
-     * @return true if all squares are fill
-     * @return false otherwise
-     */
-    bool checkDraw();
-
-    /**
-     * @brief Takes in four pieces and returns if all of them belong to the same side
-     *
-     * @param piece the player/bot's char to be checked
-     * @param moves a vector of the grid squares to be checked
-     * @return true if all of the board places indicated by moves are fulled by the piece's char
-     * @return false otherwise
-     */
-    bool checkPiece(const char piece, vector<tuple<int, int, int>> &moves);
 
     /**
      * @brief Displays the board and a winning message at the end of the game
@@ -100,7 +87,8 @@ private:
     void displayDraw();
 
     Board gameBoard_;            // stores the moves that have been played
-    Bot opponentAi_;               // stores the bot to play against
+    Logic gameLogic_;             // used to find out if the game is over/won
+    Bot opponentAi_;             // stores the bot to play against
     bool xTurn_;                 // if it is X's turn or O's turn
     bool useBot_;                // if the opponent is a bot / player
     char win_;                   // stores which player/bot has one

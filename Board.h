@@ -8,8 +8,6 @@ using namespace std;
 using GameBoard = vector<vector<vector<char>>>;
 #define endd cout << endl
 const string spc = "            ";
-const char defaultChar = ' ';
-const char winChar = 'W';
 
 /**
  * @brief Exception class for if a chosen spot already has a piece
@@ -38,13 +36,13 @@ public:
      * @brief Construct a new Board object
      *
      */
-    Board();
+    Board(char defaultChar, char winChar);
 
     /**
      * @brief Display the current board in the terminal
      *
      */
-    void printBoard();
+    void printBoard() const;
 
     /**
      * @brief places a specified 'winning' piece at the specified square, regardless of if that square is occupied or not
@@ -73,7 +71,7 @@ public:
      * @param col indicates the column
      * @return char the piece at the given location
      */
-    char getPiece(int board, int row, int col);
+    char getPiece(int board, int row, int col) const;
 
     /**
      * @brief Destroy the Board object
@@ -83,6 +81,8 @@ public:
 
 private:
     GameBoard gameBoard_; // stores the 4x4x4 game board
+    char defaultChar_;
+    char winChar_;
 };
 
 #endif

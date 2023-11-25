@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game() : gameBoard_{}
+Game::Game() : gameBoard_(defaultChar, winChar), gameLogic_(pl1, pl2, defaultChar), opponentAi_(pl1, pl2, defaultChar)
 {
 }
 
@@ -21,14 +21,15 @@ void Game::gameLoop()
     {
         showBoard();
         getInput();
-        if (checkWin(xTurn_ ? 'X' : 'O'))
+
+        if (checkWin(xTurn_ ? pl1 : pl2))
         {
-            win_ = xTurn_ ? 'X' : 'O';
+            win_ = xTurn_ ? pl1 : pl2;
             displayWin();
             break;
         }
         xTurn_ = !xTurn_;
-        if(checkDraw())
+        if (gameLogic_.checkDraw(gameBoard_))
         {
             displayDraw();
             break;
@@ -38,120 +39,45 @@ void Game::gameLoop()
 
 bool Game::checkWin(const char piece)
 {
-    // stores the board, row and column of each possible winning scenario
-    vector<tuple<int, int, int>> moves(4);
+    auto combinations = gameLogic_.fourInARow();
+    bool win;
 
-    // Completely diagonal (all 3 variables change)
-    for (auto i = 0; i < 2; i++)
+    for (auto itr = combinations->begin(); itr != combinations->end(); itr++)
     {
-        for (auto j = 0; j < 2; j++)
+        auto moves = *itr;
+        // for (auto moves : *combinations)
+        win = true;
+        for (auto move : moves)
         {
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(iter, abs(iter - 3 * i), abs(iter - 3 * j));
-            }
-            if (checkPiece(piece, moves))
-                return true;
+            if (gameBoard_.getPiece(get<0>(move), get<1>(move), get<2>(move)) != piece)
+                win = false;
         }
-    }
+        if (!win)
+            continue;
 
-    // completely straight (one variable changes other 2 don't)
-    for (auto i = 0; i < 4; i++)
-    {
-        for (auto j = 0; j < 4; j++)
+        for (auto &move : moves)
         {
-            // checking every column
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(i, j, iter);
-            }
-            if (checkPiece(piece, moves))
-                return true;
-
-            // checking every row
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(i, iter, j);
-            }
-            if (checkPiece(piece, moves))
-                return true;
-
-            // checking every board
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(iter, j, i);
-            }
-            if (checkPiece(piece, moves))
-                return true;
+            gameBoard_.placeWinPiece(get<0>(move), get<1>(move), get<2>(move));
         }
+        return true;
     }
-
-    // partially diagonal (2 variables change and one doesnt)
-    for (auto i = 0; i < 4; i++)
-    {
-        for (auto j = 0; j < 2; j++)
-        {
-            // column is constant
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(iter, abs(iter - 3 * j), i);
-            }
-            if (checkPiece(piece, moves))
-                return true;
-
-            // row is constant
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(iter, i, abs(iter - 3 * j));
-            }
-            if (checkPiece(piece, moves))
-                return true;
-
-            // board is constant
-            for (auto iter = 0; iter < 4; iter++)
-            {
-                moves[iter] = make_tuple(i, iter, abs(iter - 3 * j));
-            }
-            if (checkPiece(piece, moves))
-                return true;
-        }
-    }
-
     return false;
 }
 
-bool Game::checkDraw()
-{
-    for (auto i = 0; i < 4; i++)
-    {
-        for (auto j = 0; j < 4; j++)
-        {
-            // checking every column
-            for (auto k = 0; k < 4; k++)
-            {
-                if(gameBoard_.getPiece(i,j,k) == defaultChar)
-                return false;
-            }
-        }
-    }
-    return true;
-};
+// bool Game::checkPiece(const char piece, vector<tuple<int, int, int>> &moves)
+// {
+//     for (auto move : moves)
+//     {
+//         if (gameBoard_.getPiece(get<0>(move), get<1>(move), get<2>(move)) != piece)
+//             return false;
+//     }
 
-bool Game::checkPiece(const char piece, vector<tuple<int, int, int>> &moves)
-{
-    for (auto move : moves)
-    {
-        if (gameBoard_.getPiece(get<0>(move), get<1>(move), get<2>(move)) != piece)
-            return false;
-    }
-
-    for (auto &move : moves)
-    {
-        cout << get<0>(move) << " " << get<1>(move) << " " << get<2>(move) << " " << endl;
-        gameBoard_.placeWinPiece(get<0>(move), get<1>(move), get<2>(move));
-    }
-    return true;
-}
+//     for (auto &move : moves)
+//     {
+//         gameBoard_.placeWinPiece(get<0>(move), get<1>(move), get<2>(move));
+//     }
+//     return true;
+// }
 
 void Game::displayWin()
 {
@@ -164,14 +90,14 @@ void Game::displayDraw()
 {
     showBoard();
     cout << "GAME OVER" << endl;
-    cout << "The game is a draw as all squares have been used without either player winning"<<endl;
+    cout << "The game is a draw as all squares have been used without either player winning" << endl;
 }
 
 void Game::showBoard()
 {
     cout << "\033[2J\033[H";
     cout.flush();
-    cout << "-> " << (xTurn_ ? 'X' : 'O') << " to move\n"
+    cout << "-> " << (xTurn_ ? pl1 : pl2) << " to move\n"
          << endl;
     gameBoard_.printBoard();
 }
@@ -209,7 +135,7 @@ void Game::getInput()
         row = (val % 100) / 10 - 1;
         col = val % 10 - 1;
 
-        gameBoard_.placePiece((xTurn_ ? 'X' : 'O'), board, row, col);
+        gameBoard_.placePiece((xTurn_ ? pl1 : pl2), board, row, col);
     }
     catch (invalid_argument &ex)
     {

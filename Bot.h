@@ -6,14 +6,13 @@
 #include <tuple>
 
 using namespace std;
-const char defaultChar = ' ';
 using GameBoard = vector<vector<vector<char>>>;
 using PossibleMoves = vector<vector<vector<double>>>;
 
 class Bot
 {
 public:
-    Bot();
+    Bot(char pl1, char pl2, char defaultChar); // pl2 is the char the bot uses
 
     void setBoardState(const tuple<int, int, int> & playerInput);
     tuple<int, int, int> getMove();
@@ -26,6 +25,9 @@ private:
     double enemyScore();
     GameBoard gameBoard_;
     PossibleMoves allMoves_;
+    char pl1_;
+    char pl2_;
+    char defaultChar_;
 };
 
 #endif

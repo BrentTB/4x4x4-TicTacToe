@@ -1,10 +1,10 @@
 #include "Board.h"
 
-Board::Board() : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultChar)))
+Board::Board(char defaultChar, char winChar) : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultChar))), defaultChar_(defaultChar), winChar_(winChar)
 {
 }
 
-void Board::printBoard()
+void Board::printBoard() const
 {
     // print the board labels
     cout << "      ";
@@ -73,7 +73,7 @@ void Board::placeWinPiece(int board, int row, int col)
     if (board < 0 || board > 3 || row < 0 || row > 3 || col < 0 || col > 3)
         throw InvalidSpot();
 
-    gameBoard_[board][row][col] = winChar;
+    gameBoard_[board][row][col] = winChar_;
 }
 
 void Board::placePiece(char piece, int board, int row, int col)
@@ -81,12 +81,12 @@ void Board::placePiece(char piece, int board, int row, int col)
     if (board < 0 || board > 3 || row < 0 || row > 3 || col < 0 || col > 3)
         throw InvalidSpot();
 
-    if (gameBoard_[board][row][col] != defaultChar)
+    if (gameBoard_[board][row][col] != defaultChar_)
         throw UsedSpot();
 
     gameBoard_[board][row][col] = piece;
 }
-char Board::getPiece(int board, int row, int col)
+char Board::getPiece(int board, int row, int col) const
 {
     return gameBoard_[board][row][col];
 }
