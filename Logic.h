@@ -13,7 +13,7 @@ using AllMoves = vector<vector<tuple<int, int, int>>>;
 class Logic
 {
 public:
-    Logic(char pl1, char pl2, char defaultChar);
+    Logic();
 
     AllMoves &fourInARow();
 
@@ -23,13 +23,10 @@ public:
      * @return true if all squares are fill
      * @return false otherwise
      */
-    bool checkDraw(const Board &gameBoard);
+    bool checkDraw(const Board &gameBoard, const char defaultChar);
 
 private:
     AllMoves allMoves_;
-    char pl1_;
-    char pl2_;
-    char defaultChar_;
 };
 
 #endif

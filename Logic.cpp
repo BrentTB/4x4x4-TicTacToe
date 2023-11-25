@@ -1,6 +1,6 @@
 #include "Logic.h"
 
-Logic::Logic(char pl1, char pl2, char defaultChar) : allMoves_(), pl1_(pl1), pl2_(pl2), defaultChar_(defaultChar)
+Logic::Logic() : allMoves_()
 {
 }
 
@@ -83,7 +83,7 @@ AllMoves &Logic::fourInARow()
     return allMoves_;
 }
 
-bool Logic::checkDraw(const Board &gameBoard)
+bool Logic::checkDraw(const Board &gameBoard, const char defaultChar)
 {
     for (auto i = 0; i < 4; i++)
     {
@@ -91,7 +91,7 @@ bool Logic::checkDraw(const Board &gameBoard)
         {
             for (auto k = 0; k < 4; k++)
             {
-                if (gameBoard.getPiece(i, j, k) == defaultChar_)
+                if (gameBoard.getPiece(i, j, k) == defaultChar)
                     return false;
             }
         }

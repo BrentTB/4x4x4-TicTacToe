@@ -10,6 +10,10 @@ using namespace std;
 using GameBoard = vector<vector<vector<char>>>;
 using PossibleMoves = vector<vector<vector<double>>>;
 
+const char playerC = 'p';
+const char botC = 'b';
+const char defaultC = 'd';
+
 class Bot
 {
 public:
@@ -20,7 +24,7 @@ public:
      * @param botChar the char used to represent the bot
      * @param defaultChar the char used to represent an empty square
      */
-    Bot(char playerChar, char botChar, char defaultChar);
+    Bot();
 
     /**
      * @brief Set the Board State object based on the player's move
@@ -65,9 +69,8 @@ private:
     GameBoard gameBoard_;
     PossibleMoves allMoves_;
     Logic gameLogic_;
-    char playerChar_;
-    char botChar_;
-    char defaultChar_;
 };
 
 #endif
+
+// TODO: make the score functions neater / reuse code

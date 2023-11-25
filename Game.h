@@ -29,10 +29,10 @@ public:
     /**
      * @brief Starts a game of 3d 4x4x4 tic tac toe, either with 2 players or a bot
      *
-     * @param twoPlayer false if the player is playing a bot. If playing with a bot, the player is always 'X'
-     * @param xFirst true if 'X' moves first (or the char of pl1)
+     * @param xFirst true if 'X' moves first. When playing with one bot, this means the player goes first
+     * @param numPlayers an int from 0 to 2, if 1, the player will use 'X'
      */
-    void startGame(const bool twoPlayer, const bool xFirst = true);
+    void startGame(const bool xFirst, const int numPlayers);
 
     /**
      * @brief Destroy the Game object
@@ -63,7 +63,7 @@ private:
      * @brief when playing with a bot, gets the bots next move and plays it
      *
      */
-    void botMove();
+    void botMove(Bot &botUsed);
 
     /**
      * @brief Find if the game has been won. If it has, the winning pieces are changed to another symbol
@@ -88,9 +88,10 @@ private:
 
     Board gameBoard_;                       // stores the moves that have been played
     Logic gameLogic_;                       // used to find out if the game is over/won
-    Bot opponentAi_;                        // stores the bot to play against
+    Bot opponentAi1_;                        // stores the bot to play against
+    Bot opponentAi2_;                        // stores the bot to play against
     bool xTurn_;                            // if it is X's turn or O's turn
-    bool useBot_;                           // if the opponent is a bot / player
+    int numBots_;                           // if the opponent is a bot / player
     char win_;                              // stores which player/bot has one
     vector<tuple<int, int, int>> allInput_; // stores all of the user's inputs
 };
@@ -99,7 +100,7 @@ private:
 
 /*
 TODO: make it easier to see what the opponent just moved, against the bot or a player
-maybe add the ability to undo a move?
+TODO: maybe add the ability to undo a move?
 
 TODO: make it easier to restart a game without rerunning the code?
 

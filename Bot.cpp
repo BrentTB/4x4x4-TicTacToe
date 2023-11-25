@@ -1,13 +1,12 @@
 #include "Bot.h"
 
-Bot::Bot(char playerChar, char botChar, char defaultChar) : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultChar))),
+Bot::Bot() : gameBoard_(4, vector<vector<char>>(4, vector<char>(4, defaultC))),
                                                             allMoves_(4, vector<vector<double>>(4, vector<double>(4, 0))),
-                                                            gameLogic_(playerChar, botChar, defaultChar),
-                                                            playerChar_(playerChar), botChar_(botChar), defaultChar_(defaultChar){};
+                                                            gameLogic_(){};
 
 void Bot::setBoardState(const tuple<int, int, int> &playerInput)
 {
-    gameBoard_[get<0>(playerInput)][get<1>(playerInput)][get<2>(playerInput)] = playerChar_;
+    gameBoard_[get<0>(playerInput)][get<1>(playerInput)][get<2>(playerInput)] = playerC;
 }
 
 tuple<int, int, int> Bot::getMove()
@@ -33,7 +32,7 @@ tuple<int, int, int> Bot::getMove()
                     allMoves_[i][j][k] = (i == 0 || i == 3) ? 10 : 100;
 
                 // the bot can't move somewhere that has a piece
-                if (gameBoard_[i][j][k] != defaultChar_)
+                if (gameBoard_[i][j][k] != defaultC)
                     allMoves_[i][j][k] = INT32_MIN;
             }
         }
@@ -42,7 +41,7 @@ tuple<int, int, int> Bot::getMove()
     playerScore();
 
     auto move = findBestScore();
-    gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] = botChar_;
+    gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] = botC;
 
     return move;
 }
@@ -58,9 +57,9 @@ void Bot::botScore()
         vector<tuple<int, int, int>> empty;
         for (auto move : moves)
         {
-            if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == botChar_)
+            if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == botC)
                 numInARow++;
-            else if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == playerChar_)
+            else if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == playerC)
                 numInARow = -10;
             else
                 empty.push_back({get<0>(move), get<1>(move), get<2>(move)});
@@ -93,7 +92,7 @@ void Bot::botScore()
         {
             for (auto pos : empty)
             {
-                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += 10;
+                allMoves_[get<0>(pos)][get<1>(pos)][get<2>(pos)] += 20;
             }
         }
     }
@@ -111,9 +110,9 @@ void Bot::playerScore()
         vector<tuple<int, int, int>> empty;
         for (auto move : moves)
         {
-            if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == playerChar_)
+            if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == playerC)
                 numInARow++;
-            else if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == botChar_)
+            else if (gameBoard_[get<0>(move)][get<1>(move)][get<2>(move)] == botC)
                 numInARow = -10;
             else
                 empty.push_back({get<0>(move), get<1>(move), get<2>(move)});
@@ -170,7 +169,6 @@ tuple<int, int, int> Bot::findBestScore()
             }
         }
     }
-    cout << bestScore << endl;
     int index = rand() % allBestMoves.size();
     return allBestMoves[index];
 }

@@ -5,5 +5,5 @@ using namespace std;
 int main()
 {
     Game game;
-    game.startGame(false);
+    game.startGame(false, 0);
 }

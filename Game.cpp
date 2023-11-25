@@ -1,14 +1,15 @@
 #include "Game.h"
 
-Game::Game() : gameBoard_(defaultChar, winChar), gameLogic_(pl1, pl2, defaultChar), opponentAi_(pl1, pl2, defaultChar)
+Game::Game() : gameBoard_(defaultChar, winChar)
 {
     srand(0);
     // srand(time(0));
 }
 
-void Game::startGame(const bool twoPlayer, const bool xFirst)
+void Game::startGame(const bool xFirst, const int numPlayers)
 {
-    useBot_ = !twoPlayer;
+
+    numBots_ = max(min(2 - numPlayers, 2), 0); // make sure 0 1 or 2 bots are being used
     xTurn_ = xFirst;
     win_ = defaultChar;
     gameLoop();
@@ -30,7 +31,7 @@ void Game::gameLoop()
             break;
         }
         xTurn_ = !xTurn_;
-        if (gameLogic_.checkDraw(gameBoard_))
+        if (gameLogic_.checkDraw(gameBoard_, defaultChar))
         {
             displayDraw();
             break;
@@ -66,11 +67,20 @@ void Game::displayWin()
 {
     showBoard();
     cout << "GAME OVER" << endl;
-    cout << "The winner is: " << win_ << endl;
+    cout << "The winner is: " << win_ << endl
+         << endl;
 
-    for (auto x : allInput_)
+    // for testing: allows the user to see all moves made
+    for (auto i = 0; i < allInput_.size(); i += 2)
     {
-        cout << (get<0>(x) + 1) << (get<1>(x) + 1) << (get<2>(x) + 1) << endl;
+        auto x = allInput_[i];
+        cout << (get<0>(allInput_[i]) + 1) << (get<1>(allInput_[i]) + 1) << (get<2>(allInput_[i]) + 1) << endl;
+    }
+    cout << endl;
+    for (auto i = 1; i < allInput_.size(); i += 2)
+    {
+        auto x = allInput_[i];
+        cout << (get<0>(allInput_[i]) + 1) << (get<1>(allInput_[i]) + 1) << (get<2>(allInput_[i]) + 1) << endl;
     }
 }
 
@@ -83,18 +93,38 @@ void Game::displayDraw()
 
 void Game::showBoard()
 {
-    // cout << "\033[2J\033[H";
-    // cout.flush();
+    cout << "\033[2J\033[H";
+    cout.flush();
     cout << "-> " << (xTurn_ ? pl1 : pl2) << " to move\n"
          << endl;
+    if (allInput_.size() != 0)
+        cout << "\nLast move: " << (get<0>(allInput_.back()) + 1) << (get<1>(allInput_.back()) + 1) << (get<2>(allInput_.back()) + 1) << endl;
     gameBoard_.printBoard();
 }
 
 void Game::getInput()
 {
-    if (useBot_ && !xTurn_)
+
+    if (numBots_ == 2)
     {
-        botMove();
+        string ignore;
+        cout << "-> Type a key and press enter to get the next move. Type 'e' to exit" << endl;
+        cin >> ignore;
+        if (isalpha(ignore[0]) && toupper(ignore[0]) == 'E')
+        {
+            cout << "Thank you for playing" << endl;
+            exit(0);
+        }
+    }
+
+    if (numBots_ && !xTurn_)
+    {
+        botMove(opponentAi1_);
+        return;
+    }
+    if (numBots_ == 2)
+    {
+        botMove(opponentAi2_);
         return;
     }
 
@@ -155,13 +185,14 @@ void Game::getInput()
     }
 }
 
-void Game::botMove()
+void Game::botMove(Bot &botUsed)
 {
     // maybe add a small wait here with a message like 'thinking'
     if (allInput_.size() != 0)
     {
-        opponentAi_.setBoardState(allInput_.back());
+        botUsed.setBoardState(allInput_.back());
     }
-    auto move = opponentAi_.getMove();
-    gameBoard_.placePiece('O', get<0>(move), get<1>(move), get<2>(move));
+    auto move = botUsed.getMove();
+    gameBoard_.placePiece(xTurn_ ? pl1 : pl2, get<0>(move), get<1>(move), get<2>(move));
+    allInput_.push_back({get<0>(move), get<1>(move), get<2>(move)});
 }
